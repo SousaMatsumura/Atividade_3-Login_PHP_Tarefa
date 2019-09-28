@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 if(isset($_POST['submit'])){
 
     include 'dbh.inc.php';
@@ -10,25 +12,48 @@ if(isset($_POST['submit'])){
     /**
      * Error handlers:
      * @1 - Check for empty fields 
-     * @2 - Check if input characters are valid
-     * @3 - Check if e-mail is valid
-     * @4 - Check if the user was already taken in database
+     * @2 - Check if user exist in database
+     * @3 - Check password
      * 
      * Plus:
-     * @hash - hash password
-     * @insert - insert user into the database
+     * @de-hash - decrypt hashed password
+     * @log-in - log in the user account
      */
 
      if(empty($uid) || empty($pwd)){
-
+        //@1
+        header("Location: ../index.php?login=empty");
+        exit();
      }else{
-         /**
-          * Continue in: https://youtu.be/xb8aad4MRx8
-          * At: 1:11:15
-          */
+         $sql = "SELECT * FROM users WHERE user_uid='$uid' OR user_email='$uid'";
+         $result = mysqli_query($conn, $sql);
+         $resultCheck = mysqli_num_rows($result);
+         if($resultCheck < 1){
+            //@2
+            header("Location: ../index.php?login=error-user-not-found");
+            exit();         
+         }else{
+             if($row = mysqli_fetch_assoc($result)){
+                //@de-hash
+                $hashedPwdCheck = password_verify($pwd, $row['user_pwd']);
+                if($hashedPwdCheck == false){
+                    //@3
+                    header("Location: ../index.php?login=error-hashed-wrong");
+                    exit();
+                }elseif($hashedPwdCheck == true){
+                    //@log-in
+                    $_SESSION['u_id'] = $row['user_id'];
+                    $_SESSION['u_name'] = $row['user_name'];
+                    $_SESSION['u_email'] = $row['user_email'];
+                    $_SESSION['u_uid'] = $row['user_uid'];
+                    header("Location: ../index.php?login=success");
+                    exit();
+                }
+             }
+         }
      }
 
 }else{
-    header("Location: ../index.php?login=error");
+    header("Location: ../index.php?login=error-not-isset");
     exit();
 }

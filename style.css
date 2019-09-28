@@ -178,7 +178,7 @@ header .nav-login form button:hover{
 
 header .nav-login a{
     display: block;
-    width: 60px;
+    /*width: 60px;*/
     height: 60px;
     border: none;
     float: left;

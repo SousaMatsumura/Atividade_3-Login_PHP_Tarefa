@@ -6,3 +6,10 @@ create table users(
    user_pwd varchar(256) not null
 );
 
+create table pwdReset(
+   pwdResetId int(11) not null AUTO_INCREMENT PRIMARY KEY,
+   pwdResetEmail TEXT not null,
+   pwdResetSelector TEXT not null,
+   pwdResetToken LONGTEXT not null,
+   pwdResetExpires TEXT not null
+);
